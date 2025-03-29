@@ -69,6 +69,15 @@
         .like-button:active {
             transform: scale(1.2);
         }
+        /* ✅ Like Count Color */
+        .like-count {
+            color: blue; /* Light mode like count color */
+            font-weight: bold;
+        }
+        /* ✅ Dark Mode Like Count */
+        .dark-mode .like-count {
+            color: yellow; /* Dark mode like count color */
+        }
 
         /* ✅ Improved Dark Mode (Red Themed) */
         .dark-mode {
@@ -148,7 +157,7 @@
             postElement.innerHTML = `
                 <p>${post.content}</p>
                 <small>${new Date(post.timestamp).toLocaleString()}</small>
-                <button class="like-button" data-key="${snapshot.key}">❤️ ${post.likes}</button>
+                <button class="like-button" data-key="${snapshot.key}">❤️ <span class="like-count">${post.likes}</span></button>
             `;
 
             // ✅ Like Button Functionality
