@@ -3,31 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhotonRush - Social</title>
+    <title>PhotonRush - Blog</title>
     <link rel="stylesheet" href="styles.css">
-    <script defer src="script.js"></script>
 </head>
 <body>
     <header>
         <h1>PhotonRush</h1>
-        <nav>
-            <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Profile</a></li>
-                <li><a href="#">Messages</a></li>
-                <li><a href="#">Logout</a></li>
-            </ul>
-        </nav>
+        <button id="darkModeToggle">🌙</button>
     </header>
-    
     <main>
-        <div class="post-box">
-            <textarea placeholder="What's on your mind?"></textarea>
-            <button id="postBtn">Post</button>
-        </div>
-        <div id="posts-container">
-            <!-- Posts will be dynamically added here -->
-        </div>
+        <section id="posts"></section>
+        <button id="addPost">Add New Post</button>
     </main>
+    <script src="script.js"></script>
 </body>
 </html>
