@@ -8,21 +8,20 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #e3f2fd;
+            background-color: #f4f4f4;
             color: #333;
             text-align: center;
             margin: 0;
             padding: 20px;
-            transition: background 0.3s ease, color 0.3s ease;
+            transition: background 0.3s ease;
         }
         .container {
             max-width: 600px;
             margin: auto;
-            background: #ffffff;
+            background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0px 0px 15px rgba(0, 0, 255, 0.2);
-            transition: background 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
         textarea {
             width: 100%;
@@ -30,10 +29,9 @@
             margin: 10px 0;
             padding: 10px;
             font-size: 16px;
-            border: 2px solid #007bff;
+            border: 1px solid #ccc;
             border-radius: 5px;
             resize: none;
-            transition: border 0.3s ease, background 0.3s ease, color 0.3s ease;
         }
         button {
             background-color: #007bff;
@@ -43,20 +41,16 @@
             cursor: pointer;
             border-radius: 5px;
             font-size: 16px;
-            transition: background 0.3s ease, transform 0.2s ease-in-out;
         }
         button:hover {
             background-color: #0056b3;
-            transform: scale(1.05);
         }
         .post {
-            background: #f0f8ff;
+            background: #f9f9f9;
             padding: 15px;
             margin: 10px 0;
             border-radius: 5px;
             text-align: left;
-            border-left: 5px solid #007bff;
-            transition: background 0.3s ease, border-left 0.3s ease;
         }
         .like-button {
             background: none;
@@ -69,41 +63,6 @@
         .like-button:active {
             transform: scale(1.2);
         }
-        /* ✅ Like Count Color */
-        .like-count {
-            color: blue; /* Light mode like count color */
-            font-weight: bold;
-        }
-        /* ✅ Dark Mode Like Count */
-        .dark-mode .like-count {
-            color: yellow; /* Dark mode like count color */
-        }
-
-        /* ✅ Improved Dark Mode (Red Themed) */
-        .dark-mode {
-            background-color: #1b1b1b;
-            color: white;
-        }
-        .dark-mode .container {
-            background: #222;
-            color: white;
-            box-shadow: 0px 0px 15px rgba(255, 0, 0, 0.4);
-        }
-        .dark-mode textarea {
-            background: #333;
-            color: white;
-            border: 2px solid #ff4d4d;
-        }
-        .dark-mode button {
-            background-color: #ff4d4d;
-        }
-        .dark-mode button:hover {
-            background-color: #cc0000;
-        }
-        .dark-mode .post {
-            background: #292929;
-            border-left: 5px solid #ff4d4d;
-        }
     </style>
 </head>
 <body>
@@ -115,12 +74,10 @@
         <div id="posts-container"></div>
     </div>
 
-    <!-- ✅ Firebase Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, update } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+        import { getDatabase, ref, push, onChildAdded, update, onValue } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
         
-        // ✅ Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyD-7fme9Mo3isVChUn2k_LnI0cAyv_uZDE",
             authDomain: "photon-rush.firebaseapp.com",
@@ -134,7 +91,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // ✅ Post Button Click Event
         document.getElementById("post-button").addEventListener("click", function () {
             const content = document.getElementById("post-content").value.trim();
             if (content.length < 10 || content.length > 500) {
@@ -149,7 +105,6 @@
             document.getElementById("post-content").value = "";
         });
 
-        // ✅ Fetch & Display Posts
         onChildAdded(ref(db, "posts"), (snapshot) => {
             const post = snapshot.val();
             const postElement = document.createElement("div");
@@ -157,19 +112,21 @@
             postElement.innerHTML = `
                 <p>${post.content}</p>
                 <small>${new Date(post.timestamp).toLocaleString()}</small>
-                <button class="like-button" data-key="${snapshot.key}">❤️ <span class="like-count">${post.likes}</span></button>
+                <button class="like-button" data-key="${snapshot.key}">❤️ <span>${post.likes}</span></button>
             `;
-
-            // ✅ Like Button Functionality
-            postElement.querySelector(".like-button").addEventListener("click", function () {
+            
+            const likeButton = postElement.querySelector(".like-button");
+            const likeCount = likeButton.querySelector("span");
+            
+            likeButton.addEventListener("click", function () {
                 const postRef = ref(db, "posts/" + snapshot.key);
                 update(postRef, { likes: post.likes + 1 });
+                likeCount.textContent = post.likes + 1; // ✅ UI updates immediately
             });
-
+            
             document.getElementById("posts-container").prepend(postElement);
         });
 
-        // ✅ Dark Mode Toggle
         const darkModeToggle = document.getElementById("dark-mode-toggle");
         darkModeToggle.addEventListener("click", function () {
             document.body.classList.toggle("dark-mode");
