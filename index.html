@@ -40,6 +40,7 @@
             padding: 10px;
             cursor: pointer;
             border-radius: 5px;
+            font-size: 16px;
         }
         button:hover {
             background-color: #0056b3;
@@ -49,7 +50,6 @@
             padding: 15px;
             margin: 10px 0;
             border-radius: 5px;
-            position: relative;
             text-align: left;
         }
         .like-button {
@@ -78,61 +78,68 @@
         <div id="posts-container"></div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, update } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyD-7fme9Mo3isVChUn2k_LnI0cAyv_uZDE",
-            authDomain: "photon-rush.firebaseapp.com",
-            databaseURL: "https://photon-rush-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "photon-rush",
-            storageBucket: "photon-rush.firebasestorage.app",
-            messagingSenderId: "579701775349",
-            appId: "1:579701775349:web:6e124cc313304265381ebc"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        
-        document.getElementById("post-button").addEventListener("click", function() {
-            const content = document.getElementById("post-content").value.trim();
-            if (content.length < 10 || content.length > 500) {
-                alert("Post must be between 10 and 500 characters!");
-                return;
-            }
-            const postRef = push(ref(db, "posts"));
-            postRef.set({
-                content: content,
-                likes: 0,
-                timestamp: Date.now()
-            });
-            document.getElementById("post-content").value = "";
-        });
-        
-        onChildAdded(ref(db, "posts"), (snapshot) => {
-            const post = snapshot.val();
-            const postElement = document.createElement("div");
-            postElement.classList.add("post");
-            postElement.innerHTML = `
-                <p>${post.content}</p>
-                <small>${new Date(post.timestamp).toLocaleString()}</small>
-                <button class="like-button">❤️ ${post.likes}</button>
-            `;
-            postElement.querySelector(".like-button").addEventListener("click", function() {
-                update(snapshot.ref, { likes: post.likes + 1 });
-            });
-            document.getElementById("posts-container").prepend(postElement);
-        });
+    <!-- Firebase Scripts -->
+    <script defer src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // ✅ Firebase Configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyD-7fme9Mo3isVChUn2k_LnI0cAyv_uZDE",
+                authDomain: "photon-rush.firebaseapp.com",
+                databaseURL: "https://photon-rush-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "photon-rush",
+                storageBucket: "photon-rush.firebasestorage.app",
+                messagingSenderId: "579701775349",
+                appId: "1:579701775349:web:6e124cc313304265381ebc"
+            };
 
-        const darkModeToggle = document.getElementById("dark-mode-toggle");
-        darkModeToggle.addEventListener("click", function() {
-            document.body.classList.toggle("dark-mode");
-            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+
+            // ✅ Post Button Click Event
+            document.getElementById("post-button").addEventListener("click", function () {
+                const content = document.getElementById("post-content").value.trim();
+                if (content.length < 10 || content.length > 500) {
+                    alert("Post must be between 10 and 500 characters!");
+                    return;
+                }
+                const newPostRef = database.ref("posts").push();
+                newPostRef.set({
+                    content: content,
+                    likes: 0,
+                    timestamp: Date.now()
+                });
+                document.getElementById("post-content").value = "";
+            });
+
+            // ✅ Fetch & Display Posts
+            database.ref("posts").on("child_added", function (snapshot) {
+                const post = snapshot.val();
+                const postElement = document.createElement("div");
+                postElement.classList.add("post");
+                postElement.innerHTML = `
+                    <p>${post.content}</p>
+                    <small>${new Date(post.timestamp).toLocaleString()}</small>
+                    <button class="like-button">❤️ ${post.likes}</button>
+                `;
+                // ✅ Like Button Functionality
+                postElement.querySelector(".like-button").addEventListener("click", function () {
+                    snapshot.ref.update({ likes: post.likes + 1 });
+                });
+                document.getElementById("posts-container").prepend(postElement);
+            });
+
+            // ✅ Dark Mode Toggle
+            const darkModeToggle = document.getElementById("dark-mode-toggle");
+            darkModeToggle.addEventListener("click", function () {
+                document.body.classList.toggle("dark-mode");
+                localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
+            });
+            if (localStorage.getItem("darkMode") === "enabled") {
+                document.body.classList.add("dark-mode");
+            }
         });
-        if (localStorage.getItem("darkMode") === "enabled") {
-            document.body.classList.add("dark-mode");
-        }
     </script>
 </body>
 </html>
