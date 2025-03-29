@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photon Rush</title>
-    <link rel="stylesheet" href="styles.css">
-    <script defer src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
-    <script defer src="script.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -29,6 +25,7 @@
             width: 100%;
             height: 100px;
             margin: 10px 0;
+            padding: 5px;
         }
         button {
             background-color: #007bff;
@@ -36,6 +33,7 @@
             border: none;
             padding: 10px;
             cursor: pointer;
+            margin: 5px;
         }
         button:hover {
             background-color: #0056b3;
@@ -60,50 +58,53 @@
         <button id="post-button">Post</button>
         <div id="posts-container"></div>
     </div>
-    <script>
-        // Dark mode toggle
-        document.getElementById("dark-mode-toggle").addEventListener("click", function() {
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded, update } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
+
+        // Firebase Configuration (Replace with your credentials)
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-7fme9Mo3isVChUn2k_LnI0cAyv_uZDE",
+            authDomain: "photon-rush.firebaseapp.com",
+            databaseURL: "https://photon-rush-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "photon-rush",
+            storageBucket: "photon-rush.firebasestorage.app",
+            messagingSenderId: "579701775349",
+            appId: "1:579701775349:web:6e124cc313304265381ebc"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Dark Mode Toggle
+        document.getElementById("dark-mode-toggle").addEventListener("click", () => {
             document.body.classList.toggle("dark-mode");
         });
-        
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        
-        // Post submission
-        document.getElementById("post-button").addEventListener("click", function() {
+
+        // Post Submission
+        document.getElementById("post-button").addEventListener("click", () => {
             const content = document.getElementById("post-content").value;
             if (content.trim() !== "") {
-                const newPostRef = database.ref("posts").push();
-                newPostRef.set({
-                    content: content,
-                    likes: 0
-                });
+                push(ref(database, "posts"), { content: content, likes: 0 });
                 document.getElementById("post-content").value = "";
             }
         });
-        
-        // Fetch and display posts
-        database.ref("posts").on("child_added", function(snapshot) {
+
+        // Fetch and Display Posts
+        onChildAdded(ref(database, "posts"), (snapshot) => {
             const post = snapshot.val();
             const postElement = document.createElement("div");
             postElement.classList.add("post");
             postElement.innerHTML = `<p>${post.content}</p><button class="like-button">Like (${post.likes})</button>`;
             
-            // Like functionality
-            postElement.querySelector(".like-button").addEventListener("click", function() {
-                snapshot.ref.update({ likes: post.likes + 1 });
+            // Like Button Functionality
+            postElement.querySelector(".like-button").addEventListener("click", () => {
+                update(ref(database, "posts/" + snapshot.key), { likes: post.likes + 1 });
             });
-            
+
             document.getElementById("posts-container").appendChild(postElement);
         });
     </script>
