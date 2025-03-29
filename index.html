@@ -101,8 +101,8 @@
         
         document.getElementById("post-button").addEventListener("click", function() {
             const content = document.getElementById("post-content").value.trim();
-            if (content.length < 10 || content.length > 500) {
-                alert("Post must be between 10 and 500 characters!");
+            if (content.length < 2 || content.length > 500) {
+                alert("Post must be between 2 and 500 characters!");
                 return;
             }
             const postRef = push(ref(db, "posts"));
