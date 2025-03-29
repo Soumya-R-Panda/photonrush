@@ -111,15 +111,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
         import { getDatabase, ref, push, onChildAdded, update, get } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
         
-        const firebaseConfig = {
-            apiKey: "AIzaSyD-7fme9Mo3isVChUn2k_LnI0cAyv_uZDE",
-            authDomain: "photon-rush.firebaseapp.com",
-            databaseURL: "https://photon-rush-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "photon-rush",
-            storageBucket: "photon-rush.appspot.com",
-            messagingSenderId: "579701775349",
-            appId: "1:579701775349:web:6e124cc313304265381ebc"
-        };
+      const firebaseConfig = {
+        apiKey: "AIzaSyD-7fme9Mo3isVChUn2k_LnI0cAyv_uZDE",
+        authDomain: "photon-rush.firebaseapp.com",
+        databaseURL: "https://photon-rush-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "photon-rush",
+        storageBucket: "photon-rush.firebasestorage.app",
+        messagingSenderId: "579701775349",
+        appId: "1:579701775349:web:a071671bace15a0e381ebc"
+      };
+
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
