@@ -3,50 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhotonRush - Blog & Notes</title>
+    <title>PhotonRush - Social</title>
     <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
 </head>
 <body>
     <header>
         <h1>PhotonRush</h1>
-        <button id="dark-mode-toggle">Toggle Dark Mode</button>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Profile</a></li>
+                <li><a href="#">Messages</a></li>
+                <li><a href="#">Logout</a></li>
+            </ul>
+        </nav>
     </header>
-
-    <nav>
-        <a href="#" id="home-link">Home</a>
-        <a href="#" id="blog-link">Blog</a>
-        <a href="#" id="notes-link">Notes</a>
-        <a href="#" id="media-link">Media</a>
-    </nav>
-
+    
     <main>
-        <section id="home-section">
-            <h2>Welcome to PhotonRush!</h2>
-            <p>Share your blogs, notes, and media with your friends.</p>
-        </section>
-
-        <section id="blog-section" class="hidden">
-            <h2>Blog Posts</h2>
-            <textarea id="blog-content" placeholder="Write your blog here..."></textarea>
-            <button id="post-blog">Post</button>
-            <div id="blog-posts"></div>
-        </section>
-
-        <section id="notes-section" class="hidden">
-            <h2>Notes Sharing</h2>
-            <textarea id="notes-content" placeholder="Share notes or code..."></textarea>
-            <button id="post-note">Post</button>
-            <div id="notes-posts"></div>
-        </section>
-
-        <section id="media-section" class="hidden">
-            <h2>Upload Photos & Videos</h2>
-            <input type="file" id="media-upload" accept="image/*,video/*">
-            <button id="upload-media">Upload</button>
-            <div id="media-gallery"></div>
-        </section>
+        <div class="post-box">
+            <textarea placeholder="What's on your mind?"></textarea>
+            <button id="postBtn">Post</button>
+        </div>
+        <div id="posts-container">
+            <!-- Posts will be dynamically added here -->
+        </div>
     </main>
-
-    <script src="script.js"></script>
 </body>
 </html>
