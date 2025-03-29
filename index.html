@@ -8,8 +8,8 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #2c3e50, #4ca1af);
-            color: #fff;
+            background-color: #f4f4f4;
+            color: #333;
             text-align: center;
             margin: 0;
             padding: 20px;
@@ -18,11 +18,11 @@
         .container {
             max-width: 600px;
             margin: auto;
-            background: rgba(255, 255, 255, 0.1);
+            background: white;
             padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s ease, color 0.3s ease;
         }
         textarea {
             width: 100%;
@@ -30,32 +30,28 @@
             margin: 10px 0;
             padding: 10px;
             font-size: 16px;
-            border: none;
-            border-radius: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
             resize: none;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
         }
         button {
-            background-color: #ff6b6b;
+            background-color: #007bff;
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 10px;
             cursor: pointer;
             border-radius: 5px;
-            transition: 0.3s;
+            font-size: 16px;
         }
         button:hover {
-            background-color: #ff4f4f;
+            background-color: #0056b3;
         }
         .post {
-            background: rgba(255, 255, 255, 0.2);
+            background: #f9f9f9;
             padding: 15px;
             margin: 10px 0;
-            border-radius: 10px;
-            position: relative;
+            border-radius: 5px;
             text-align: left;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
         }
         .like-button {
             background: none;
@@ -68,8 +64,20 @@
         .like-button:active {
             transform: scale(1.2);
         }
+        /* ✅ Improved Dark Mode */
         .dark-mode {
-            background: linear-gradient(135deg, #1a1a1a, #333);
+            background-color: #222;
+            color: white;
+        }
+        .dark-mode .container {
+            background: #333;
+            color: white;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+        }
+        .dark-mode textarea {
+            background: #555;
+            color: white;
+            border: 1px solid #777;
         }
     </style>
 </head>
@@ -82,38 +90,41 @@
         <div id="posts-container"></div>
     </div>
 
+    <!-- ✅ Firebase Scripts -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, update } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded, update } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
         
+        // ✅ Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyD-7fme9Mo3isVChUn2k_LnI0cAyv_uZDE",
             authDomain: "photon-rush.firebaseapp.com",
             databaseURL: "https://photon-rush-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "photon-rush",
-            storageBucket: "photon-rush.firebasestorage.app",
+            storageBucket: "photon-rush.appspot.com",
             messagingSenderId: "579701775349",
             appId: "1:579701775349:web:6e124cc313304265381ebc"
         };
-        
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
-        document.getElementById("post-button").addEventListener("click", function() {
+
+        // ✅ Post Button Click Event
+        document.getElementById("post-button").addEventListener("click", function () {
             const content = document.getElementById("post-content").value.trim();
-            if (content.length < 2 || content.length > 500) {
-                alert("Post must be between 2 and 500 characters!");
+            if (content.length < 10 || content.length > 500) {
+                alert("Post must be between 10 and 500 characters!");
                 return;
             }
-            const postRef = push(ref(db, "posts"));
-            postRef.set({
+            push(ref(db, "posts"), {
                 content: content,
                 likes: 0,
                 timestamp: Date.now()
             });
             document.getElementById("post-content").value = "";
         });
-        
+
+        // ✅ Fetch & Display Posts
         onChildAdded(ref(db, "posts"), (snapshot) => {
             const post = snapshot.val();
             const postElement = document.createElement("div");
@@ -121,19 +132,25 @@
             postElement.innerHTML = `
                 <p>${post.content}</p>
                 <small>${new Date(post.timestamp).toLocaleString()}</small>
-                <button class="like-button">❤️ ${post.likes}</button>
+                <button class="like-button" data-key="${snapshot.key}">❤️ ${post.likes}</button>
             `;
-            postElement.querySelector(".like-button").addEventListener("click", function() {
-                update(snapshot.ref, { likes: post.likes + 1 });
+
+            // ✅ Like Button Functionality
+            postElement.querySelector(".like-button").addEventListener("click", function () {
+                const postRef = ref(db, "posts/" + snapshot.key);
+                update(postRef, { likes: post.likes + 1 });
             });
+
             document.getElementById("posts-container").prepend(postElement);
         });
 
+        // ✅ Dark Mode Toggle
         const darkModeToggle = document.getElementById("dark-mode-toggle");
-        darkModeToggle.addEventListener("click", function() {
+        darkModeToggle.addEventListener("click", function () {
             document.body.classList.toggle("dark-mode");
             localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
         });
+
         if (localStorage.getItem("darkMode") === "enabled") {
             document.body.classList.add("dark-mode");
         }
