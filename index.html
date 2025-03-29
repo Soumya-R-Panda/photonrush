@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photon Rush</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-color: #f4f4f4;
             color: #333;
             text-align: center;
             margin: 0;
             padding: 20px;
+            transition: background 0.3s ease;
         }
         .container {
             max-width: 600px;
@@ -25,7 +27,11 @@
             width: 100%;
             height: 100px;
             margin: 10px 0;
-            padding: 5px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
         }
         button {
             background-color: #007bff;
@@ -33,16 +39,29 @@
             border: none;
             padding: 10px;
             cursor: pointer;
-            margin: 5px;
+            border-radius: 5px;
         }
         button:hover {
             background-color: #0056b3;
         }
         .post {
             background: #f9f9f9;
-            padding: 10px;
+            padding: 15px;
             margin: 10px 0;
             border-radius: 5px;
+            position: relative;
+            text-align: left;
+        }
+        .like-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: red;
+            font-size: 18px;
+            transition: transform 0.2s ease-in-out;
+        }
+        .like-button:active {
+            transform: scale(1.2);
         }
         .dark-mode {
             background-color: #333;
@@ -60,11 +79,9 @@
     </div>
 
     <script type="module">
-        // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
         import { getDatabase, ref, push, onChildAdded, update } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
-
-        // Firebase Configuration (Replace with your credentials)
+        
         const firebaseConfig = {
             apiKey: "AIzaSyD-7fme9Mo3isVChUn2k_LnI0cAyv_uZDE",
             authDomain: "photon-rush.firebaseapp.com",
@@ -74,39 +91,48 @@
             messagingSenderId: "579701775349",
             appId: "1:579701775349:web:6e124cc313304265381ebc"
         };
-
-        // Initialize Firebase
+        
         const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        // Dark Mode Toggle
-        document.getElementById("dark-mode-toggle").addEventListener("click", () => {
-            document.body.classList.toggle("dark-mode");
-        });
-
-        // Post Submission
-        document.getElementById("post-button").addEventListener("click", () => {
-            const content = document.getElementById("post-content").value;
-            if (content.trim() !== "") {
-                push(ref(database, "posts"), { content: content, likes: 0 });
-                document.getElementById("post-content").value = "";
+        const db = getDatabase(app);
+        
+        document.getElementById("post-button").addEventListener("click", function() {
+            const content = document.getElementById("post-content").value.trim();
+            if (content.length < 10 || content.length > 500) {
+                alert("Post must be between 10 and 500 characters!");
+                return;
             }
+            const postRef = push(ref(db, "posts"));
+            postRef.set({
+                content: content,
+                likes: 0,
+                timestamp: Date.now()
+            });
+            document.getElementById("post-content").value = "";
         });
-
-        // Fetch and Display Posts
-        onChildAdded(ref(database, "posts"), (snapshot) => {
+        
+        onChildAdded(ref(db, "posts"), (snapshot) => {
             const post = snapshot.val();
             const postElement = document.createElement("div");
             postElement.classList.add("post");
-            postElement.innerHTML = `<p>${post.content}</p><button class="like-button">Like (${post.likes})</button>`;
-            
-            // Like Button Functionality
-            postElement.querySelector(".like-button").addEventListener("click", () => {
-                update(ref(database, "posts/" + snapshot.key), { likes: post.likes + 1 });
+            postElement.innerHTML = `
+                <p>${post.content}</p>
+                <small>${new Date(post.timestamp).toLocaleString()}</small>
+                <button class="like-button">❤️ ${post.likes}</button>
+            `;
+            postElement.querySelector(".like-button").addEventListener("click", function() {
+                update(snapshot.ref, { likes: post.likes + 1 });
             });
-
-            document.getElementById("posts-container").appendChild(postElement);
+            document.getElementById("posts-container").prepend(postElement);
         });
+
+        const darkModeToggle = document.getElementById("dark-mode-toggle");
+        darkModeToggle.addEventListener("click", function() {
+            document.body.classList.toggle("dark-mode");
+            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
+        });
+        if (localStorage.getItem("darkMode") === "enabled") {
+            document.body.classList.add("dark-mode");
+        }
     </script>
 </body>
 </html>
