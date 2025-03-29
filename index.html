@@ -8,8 +8,8 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            color: #fff;
             text-align: center;
             margin: 0;
             padding: 20px;
@@ -18,10 +18,11 @@
         .container {
             max-width: 600px;
             margin: auto;
-            background: white;
+            background: rgba(255, 255, 255, 0.1);
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
         }
         textarea {
             width: 100%;
@@ -29,28 +30,32 @@
             margin: 10px 0;
             padding: 10px;
             font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border: none;
+            border-radius: 10px;
             resize: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
         }
         button {
-            background-color: #007bff;
+            background-color: #ff6b6b;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 10px 15px;
             cursor: pointer;
             border-radius: 5px;
-            font-size: 16px;
+            transition: 0.3s;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #ff4f4f;
         }
         .post {
-            background: #f9f9f9;
+            background: rgba(255, 255, 255, 0.2);
             padding: 15px;
             margin: 10px 0;
-            border-radius: 5px;
+            border-radius: 10px;
+            position: relative;
             text-align: left;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
         }
         .like-button {
             background: none;
@@ -64,8 +69,7 @@
             transform: scale(1.2);
         }
         .dark-mode {
-            background-color: #333;
-            color: white;
+            background: linear-gradient(135deg, #1a1a1a, #333);
         }
     </style>
 </head>
@@ -78,41 +82,38 @@
         <div id="posts-container"></div>
     </div>
 
-    <!-- Firebase Scripts -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, update } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded, update } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
         
-        // ✅ Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyD-7fme9Mo3isVChUn2k_LnI0cAyv_uZDE",
             authDomain: "photon-rush.firebaseapp.com",
             databaseURL: "https://photon-rush-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "photon-rush",
-            storageBucket: "photon-rush.firebaseapp.com",
+            storageBucket: "photon-rush.firebasestorage.app",
             messagingSenderId: "579701775349",
             appId: "1:579701775349:web:6e124cc313304265381ebc"
         };
-
+        
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        // ✅ Post Button Click Event
-        document.getElementById("post-button").addEventListener("click", function () {
+        
+        document.getElementById("post-button").addEventListener("click", function() {
             const content = document.getElementById("post-content").value.trim();
             if (content.length < 10 || content.length > 500) {
                 alert("Post must be between 10 and 500 characters!");
                 return;
             }
-            push(ref(db, "posts"), {
+            const postRef = push(ref(db, "posts"));
+            postRef.set({
                 content: content,
                 likes: 0,
                 timestamp: Date.now()
             });
             document.getElementById("post-content").value = "";
         });
-
-        // ✅ Fetch & Display Posts
+        
         onChildAdded(ref(db, "posts"), (snapshot) => {
             const post = snapshot.val();
             const postElement = document.createElement("div");
@@ -122,24 +123,17 @@
                 <small>${new Date(post.timestamp).toLocaleString()}</small>
                 <button class="like-button">❤️ ${post.likes}</button>
             `;
-
-            // ✅ Like Button Functionality
-            const likeButton = postElement.querySelector(".like-button");
-            likeButton.addEventListener("click", function () {
-                const postRef = ref(db, "posts/" + snapshot.key);
-                update(postRef, { likes: post.likes + 1 });
+            postElement.querySelector(".like-button").addEventListener("click", function() {
+                update(snapshot.ref, { likes: post.likes + 1 });
             });
-
             document.getElementById("posts-container").prepend(postElement);
         });
 
-        // ✅ Dark Mode Toggle
         const darkModeToggle = document.getElementById("dark-mode-toggle");
-        darkModeToggle.addEventListener("click", function () {
+        darkModeToggle.addEventListener("click", function() {
             document.body.classList.toggle("dark-mode");
             localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
         });
-
         if (localStorage.getItem("darkMode") === "enabled") {
             document.body.classList.add("dark-mode");
         }
